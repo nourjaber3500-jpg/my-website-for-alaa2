@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Favorite Moments</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#fff; color:#333; transition: background 0.3s, color 0.3s; }
+  body.dark { background:#111; color:#eee; }
+
+  /* NAME ENTRY MODAL */
+  #nameModal { position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000; }
+  #nameBox { background:#fff; padding:2rem; border-radius:15px; text-align:center; max-width:400px; width:90%; }
+  #nameBox input { width:80%; padding:0.5rem; font-size:1rem; margin-top:1rem; }
+  #nameBox button { margin-top:1rem; padding:0.5rem 1rem; font-size:1rem; cursor:pointer; }
+
+  nav { display:flex; justify-content:space-between; padding:1rem; background:#ffcad4; }
+  nav button { cursor:pointer; font-size:1.2rem; }
+
+  h2 { text-align:center; }
+
+  /* FAVORITE PICS */
+  .gallery { padding:2rem; }
+  .gallery-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:1.5rem; }
+  .gallery-item { width:200px; text-align:center; }
+  .gallery-item img { width:100%; height:150px; object-fit:cover; border-radius:10px; }
+  .gallery-item p { margin-top:0.5rem; font-weight:bold; }
+
+  /* SLIDESHOW */
+  .slideshow { text-align:center; margin:2rem 0; }
+  #slideImg { width:auto; max-width:70%; max-height:400px; border-radius:15px; transition: opacity 0.5s; display:block; margin:0 auto; }
+  #slideText { margin-top:0.5rem; font-size:1.2rem; }
+  .slide-controls { margin-top:1rem; }
+  .slide-controls button { font-size:2rem; cursor:pointer; margin:0 10px; padding:0.2rem 0.6rem; }
+
+  /* VIDEO */
+  .video-section video { border-radius:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .video-section h2 { margin-bottom:1rem; }
+  .video-section { text-align:center; margin:2rem 0; }
+
+  /* MUSIC */
+  .music-controls { text-align:center; margin:2rem 0; }
+  .music-controls button { margin:0 10px; padding:0.5rem 1rem; font-size:1rem; cursor:pointer; }
+  .music-controls input[type=range] { width:200px; margin-left:10px; vertical-align:middle; }
+
+  /* LETTER */
+  .letter-text { padding:2rem; margin:2rem auto; max-width:700px; background:#ffcad4; border-radius:15px; text-align:center; line-height:1.6; }
+  .letter-text h2 { margin-bottom:1rem; }
+  .letter-text p { white-space:pre-line; }
+
+  footer { text-align:center; padding:1rem; background:#ffcad4; margin-top:1rem; }
+</style>
+</head>
+<body>
+
+<!-- NAME ENTRY MODAL -->
+<div id="nameModal">
+  <div id="nameBox">
+    <h2>Welcome!</h2>
+    <p>Please enter your name to view this special page:</p>
+    <input type="text" id="userName" placeholder="Your Name">
+    <br>
+    <button onclick="enterPage()">Enter</button>
+    <p id="errorMsg" style="color:red; margin-top:0.5rem;"></p>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav>
+  <h2 id="welcomeText">💖 My Love for you</h2>
+  <button onclick="toggleTheme()">🌙 Theme</button>
+</nav>
+
+<!-- FAVORITE PICS -->
+<section class="gallery">
+  <h2>My Favorite Moments</h2>
+  <div class="gallery-grid" id="gallery"></div>
+</section>
+
+<!-- SLIDESHOW -->
+<section class="slideshow">
+  <img id="slideImg" src="" alt="slide">
+  <div id="slideText"></div>
+  <div class="slide-controls">
+    <button id="prevBtn">‹</button>
+    <button id="nextBtn">›</button>
+  </div>
+</section>
+
+<!-- VIDEO SECTION -->
+<section class="video-section">
+  <h2>My video for Our new Year❤️</h2>
+  <video id="myVideo" width="80%" max-width="700" controls>
+    <source src="her/for-her.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <p style="margin-top:0.5rem;">Our Future Awaits😁</p>
+  <div style="margin-top:1rem;">
+    <button onclick="document.getElementById('myVideo').play()">▶ Play</button>
+    <button onclick="document.getElementById('myVideo').pause()">⏸ Pause</button>
+  </div>
+</section>
+
+<!-- MUSIC SECTION -->
+<section class="music-controls">
+  <h2>Background Music 🎵</h2>
+  <audio id="bgMusic" loop>
+    <source src="her/hey.mp3" type="audio/mp3">
+    Your browser does not support audio.
+  </audio>
+  <div>
+    <button onclick="document.getElementById('bgMusic').play()">▶ Play Music</button>
+    <button onclick="document.getElementById('bgMusic').pause()">⏸ Pause Music</button>
+    <label>Volume:</label>
+    <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
+  </div>
+</section>
+
+<!-- LETTER -->
+<section class="letter-text">
+  <h2>My Letter 💌</h2>
+  <p>
+Dear Love,
+
+You are my calm in chaos,  
+my favorite place,  
+my forever.  
+
+Every moment with you is a treasure,  
+and my heart beats for our memories together.  
+Alaa im sorry for everything i have caused 
+you over this course of the year
+im really sorry for the past days 
+im really sorry i didnt gift you anything this year
+im sorry for disappearing alot 
+im sorry for causing you trouble
+im sorry for being like this
+im sorry for everything alaa
+i pray next year is better for you sorry for everything
+i love you and will always love you
+HAPPY NEW YEAR TO YOU AND TO YOUR FAMILY
+❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️
+
+With all my love,  
+– Yours always
+  </p>
+</section>
+
+<footer>
+  <p>Made by chat gpt and nour </p>
+</footer>
+
+<script>
+  // SET THE CORRECT NAME HERE
+  const correctName = "goldfish"; // Replace with the name you want
+
+  // NAME ENTRY FUNCTION
+  function enterPage() {
+    const nameInput = document.getElementById('userName').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+    if(nameInput.toLowerCase() === correctName.toLowerCase()){
+      document.getElementById('nameModal').style.display='none';
+      document.getElementById('welcomeText').innerText = `💖 Welcome, ${nameInput}!`;
+      const music = document.getElementById('bgMusic');
+      music.volume = 0.5;
+      music.play();
+    } else {
+      errorMsg.innerText = "Sorry, this page is only for the special person. Try again!";
+    }
+  }
+
+  // FAVORITE PICS
+  const favorites = [
+    { img:"her/pic-1.jpg", text:"A beautiful day together" },
+    { img:"her/slide-2.jpg", text:"My favorite moment" },
+    { img:"her/pic-2.jpg", text:"Forever memories" },
+    { img:"her/slide-13.png", text:"Endless love" }
+  ];
+  const galleryDiv = document.getElementById("gallery");
+  favorites.forEach(item=>{
+    const div=document.createElement("div");
+    div.className="gallery-item";
+    const img=document.createElement("img"); img.src=item.img; img.alt=item.text;
+    const p=document.createElement("p"); p.innerText=item.text;
+    div.appendChild(img); div.appendChild(p); galleryDiv.appendChild(div);
+  });
+
+  // SLIDESHOW
+  const slides = [
+    { img:"her/slide-3.jpg", text:"my favorite picture😭" },
+    { img:"her/slide-3.png", text:"u look amazing in this" },
+    { img:"her/slide-2.jpg", text:"Forever starts with you" },
+    { img:"her/slide-4.png", text:"Proof u look so beautiful in any state💕" },
+    { img:"her/slide-11.png", text:"Mother look alike😌" },
+    { img:"her/slide-9.png", text:"Endless love for you❤️" },
+    { img:"her/slide-5.png", text:"Breathtakingggggg" },
+    { img:"her/slide-19.png", text:"Stole my breath" },
+    { img:"her/slide-1.png", text:"Miss Alaa🤓" },
+    { img:"her/slide-29.png", text:"Allllllllll Picsssssss offff youuuuu" }
+  ];
+  let index=0;
+  const slideImg=document.getElementById("slideImg");
+  const slideText=document.getElementById("slideText");
+
+  function showSlide(){
+    slideImg.style.opacity=0;
+    setTimeout(()=>{
+      slideImg.src=slides[index].img;
+      slideText.innerText=slides[index].text;
+      slideImg.onload = function(){
+        if(slideImg.naturalWidth > slideImg.naturalHeight){
+          slideImg.style.width = "70%";
+          slideImg.style.height = "auto";
+        } else {
+          slideImg.style.width = "auto";
+          slideImg.style.height = "400px";
+        }
+      }
+      slideImg.style.opacity=1;
+    },200);
+  }
+
+  function nextSlide(){ index=(index+1)%slides.length; showSlide(); }
+  function prevSlide(){ index=(index-1+slides.length)%slides.length; showSlide(); }
+
+  document.getElementById("nextBtn").addEventListener("click",()=>{ nextSlide(); resetInterval(); });
+  document.getElementById("prevBtn").addEventListener("click",()=>{ prevSlide(); resetInterval(); });
+
+  let slideInterval=setInterval(nextSlide,5000);
+  function resetInterval(){ clearInterval(slideInterval); slideInterval=setInterval(nextSlide,5000); }
+
+  showSlide();
+
+  // THEME
+  function toggleTheme(){ document.body.classList.toggle("dark"); }
+
+  // MUSIC VOLUME CONTROL
+  const volumeControl = document.getElementById('volumeControl');
+  const bgMusic = document.getElementById('bgMusic');
+  volumeControl.addEventListener('input', ()=>{ bgMusic.volume = volumeControl.value; });
+</script>
+
+</body>
+</html>
+
+
+
