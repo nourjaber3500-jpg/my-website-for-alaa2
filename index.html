@@ -2,246 +2,2004 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Favorite Moments</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>For You ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
 <style>
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#fff; color:#333; transition: background 0.3s, color 0.3s; }
-  body.dark { background:#111; color:#eee; }
+:root {
+  --bg:           #1a0f0a;
+  --surface:      #221510;
+  --text:         #f5e6d8;
+  --text-muted:   #b89880;
+  --accent:       #e8a598;
+  --accent2:      #d4845a;
+  --accent-glow:  rgba(232, 165, 152, 0.3);
+  --heart:        #e07070;
+  --choice-bg:    rgba(232, 165, 152, 0.07);
+  --choice-hover: rgba(232, 165, 152, 0.18);
+  --overlay:      rgba(22, 10, 6, 0.78);
+  --overlay-warm: rgba(30, 14, 8, 0.82);
+  --border:       rgba(232, 165, 152, 0.22);
+  --border-hover: rgba(232, 165, 152, 0.55);
+  --font-display: 'Playfair Display', serif;
+  --font-body:    'Lora', serif;
+  --radius:       12px;
+  --radius-sm:    8px;
+  --transition:   0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  /* NAME ENTRY MODAL */
-  #nameModal { position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000; }
-  #nameBox { background:#fff; padding:2rem; border-radius:15px; text-align:center; max-width:400px; width:90%; }
-  #nameBox input { width:80%; padding:0.5rem; font-size:1rem; margin-top:1rem; }
-  #nameBox button { margin-top:1rem; padding:0.5rem 1rem; font-size:1rem; cursor:pointer; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  nav { display:flex; justify-content:space-between; padding:1rem; background:#ffcad4; }
-  nav button { cursor:pointer; font-size:1.2rem; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow: hidden;
+  user-select: none;
+}
 
-  h2 { text-align:center; }
+.hearts-bg {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.heart-particle {
+  position: absolute;
+  bottom: -60px;
+  font-size: 1rem;
+  opacity: 0;
+  animation: floatHeart linear infinite;
+}
+@keyframes floatHeart {
+  0%   { transform: translateY(0) rotate(-10deg) scale(0.8); opacity: 0; }
+  10%  { opacity: 0.55; }
+  90%  { opacity: 0.25; }
+  100% { transform: translateY(-110vh) rotate(10deg) scale(1.1); opacity: 0; }
+}
 
-  /* FAVORITE PICS */
-  .gallery { padding:2rem; }
-  .gallery-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:1.5rem; }
-  .gallery-item { width:200px; text-align:center; }
-  .gallery-item img { width:100%; height:150px; object-fit:cover; border-radius:10px; }
-  .gallery-item p { margin-top:0.5rem; font-weight:bold; }
+#loading-screen {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, #2e120c 0%, #120706 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 9999;
+  gap: 1.8rem;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+#loading-screen.hidden { opacity: 0; visibility: hidden; }
 
-  /* SLIDESHOW */
-  .slideshow { text-align:center; margin:2rem 0; }
-  #slideImg { width:auto; max-width:70%; max-height:400px; border-radius:15px; transition: opacity 0.5s; display:block; margin:0 auto; }
-  #slideText { margin-top:0.5rem; font-size:1.2rem; }
-  .slide-controls { margin-top:1rem; }
-  .slide-controls button { font-size:2rem; cursor:pointer; margin:0 10px; padding:0.2rem 0.6rem; }
+#loading-screen::before {
+  content: '🕯';
+  font-size: 3rem;
+  animation: candleFlicker 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(255,160,60,0.7));
+}
 
-  /* VIDEO */
-  .video-section video { border-radius:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-  .video-section h2 { margin-bottom:1rem; }
-  .video-section { text-align:center; margin:2rem 0; }
+.loading-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(232,165,152,0.4);
+  animation: fadeUp 1.2s ease both;
+}
+.loading-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  animation: fadeUp 1.2s ease 0.4s both;
+}
+.loading-hearts {
+  font-size: 1.1rem;
+  letter-spacing: 0.6em;
+  animation: fadeUp 1.2s ease 0.6s both;
+  color: var(--heart);
+  filter: drop-shadow(0 0 8px rgba(224,112,112,0.5));
+}
+.loading-bar-wrap {
+  width: min(280px, 75vw);
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  animation: fadeUp 1.2s ease 0.7s both;
+  overflow: hidden;
+}
+.loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  width: 0%;
+  transition: width 1.8s cubic-bezier(0.4,0,0.2,1);
+  border-radius: 2px;
+}
+.loading-start-btn {
+  margin-top: 0.5rem;
+  padding: 0.8rem 2.8rem;
+  border: 1px solid var(--border-hover);
+  background: rgba(232,165,152,0.08);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border-radius: 40px;
+  transition: background var(--transition), box-shadow var(--transition), transform 0.2s;
+  opacity: 0;
+  pointer-events: none;
+}
+.loading-start-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  animation: fadeUp 0.7s ease both;
+}
+.loading-start-btn:hover {
+  background: rgba(232,165,152,0.18);
+  box-shadow: 0 0 24px rgba(232,165,152,0.25);
+  transform: translateY(-2px);
+}
 
-  /* MUSIC */
-  .music-controls { text-align:center; margin:2rem 0; }
-  .music-controls button { margin:0 10px; padding:0.5rem 1rem; font-size:1rem; cursor:pointer; }
-  .music-controls input[type=range] { width:200px; margin-left:10px; vertical-align:middle; }
+#engine {
+  position: fixed; inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#engine.active { display: flex; }
 
-  /* LETTER */
-  .letter-text { padding:2rem; margin:2rem auto; max-width:700px; background:#ffcad4; border-radius:15px; text-align:center; line-height:1.6; }
-  .letter-text h2 { margin-bottom:1rem; }
-  .letter-text p { white-space:pre-line; }
+.scene-layer {
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+.scene-layer.active {
+  display: flex;
+  animation: sceneFadeIn 0.8s ease both;
+}
 
-  footer { text-align:center; padding:1rem; background:#ffcad4; margin-top:1rem; }
+.scene-bg {
+  position: absolute; inset: 0;
+  background-color: var(--bg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  transition: opacity 0.5s ease;
+}
+
+.scene-bg.gradient-1,
+.scene-bg.gradient-2,
+.scene-bg.gradient-3 {
+  background-size: 100% 100%;
+}
+
+.scene-bg.gradient-1 {
+  background:
+    radial-gradient(ellipse at 25% 35%, #3d1a10 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 70%, #2a1018 0%, transparent 50%),
+    #110708;
+}
+.scene-bg.gradient-2 {
+  background:
+    radial-gradient(ellipse at 60% 40%, #2e1510 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 70%, #1a1030 0%, transparent 50%),
+    #0e0810;
+}
+.scene-bg.gradient-3 {
+  background:
+    radial-gradient(ellipse at 50% 25%, #361a12 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, #1a1020 0%, transparent 50%),
+    #100a08;
+}
+
+.scene-bg::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(8,3,1,0.50) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.scene-bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.dialogue-box {
+  position: relative;
+  z-index: 10;
+  width: min(720px, 92vw);
+  margin-bottom: clamp(1.5rem, 4vh, 3.5rem);
+  background: var(--overlay-warm);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.8rem 2.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(232,165,152,0.1),
+    0 0 0 1px rgba(232,165,152,0.04);
+}
+
+.dialogue-box::before {
+  content: '♡';
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  color: var(--heart);
+  font-size: 0.9rem;
+  padding: 0 0.6rem;
+  filter: drop-shadow(0 0 6px rgba(224,112,112,0.4));
+}
+
+.speaker-name {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-style: italic;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.dialogue-text {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 2.1vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.85;
+  color: var(--text);
+  min-height: 3em;
+}
+
+.dialogue-text::after {
+  content: '|';
+  animation: blink 1s step-end infinite;
+  color: var(--accent);
+  opacity: 0;
+}
+.dialogue-text.typing::after { opacity: 1; }
+
+.choices-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.choice-btn {
+  width: 100%;
+  padding: 0.85rem 1.3rem;
+  background: var(--choice-bg);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: clamp(0.88rem, 1.7vw, 1.05rem);
+  font-style: italic;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition), border-color var(--transition),
+              box-shadow var(--transition), transform 0.2s;
+  position: relative;
+}
+.choice-btn::before {
+  content: '♡';
+  margin-right: 0.7em;
+  color: var(--heart);
+  font-style: normal;
+  font-size: 0.8em;
+  filter: drop-shadow(0 0 4px rgba(224,112,112,0.4));
+}
+.choice-btn:hover {
+  background: var(--choice-hover);
+  border-color: var(--border-hover);
+  box-shadow: 0 0 16px rgba(232,165,152,0.12);
+  transform: translateX(5px);
+}
+
+.continue-btn {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  align-self: flex-end;
+  padding: 0.25rem 0;
+  transition: color var(--transition);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+.continue-btn:hover { color: var(--accent); }
+.continue-btn.hidden { display: none; }
+
+.room-hotspots {
+  position: absolute; inset: 0;
+  z-index: 5;
+}
+
+.hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.hotspot-pulse {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(232,165,152,0.55);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  background: radial-gradient(circle, rgba(232,165,152,0.15) 0%, rgba(232,165,152,0.04) 100%);
+  backdrop-filter: blur(6px);
+  transition: transform 0.25s, background 0.25s, border-color 0.25s, box-shadow 0.25s;
+  animation: hotspotPulse 3s ease-in-out infinite;
+  box-shadow: 0 0 0 0 var(--accent-glow);
+}
+.hotspot:hover .hotspot-pulse {
+  transform: scale(1.2);
+  background: radial-gradient(circle, rgba(232,165,152,0.3) 0%, rgba(232,165,152,0.1) 100%);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(232,165,152,0.3);
+  animation: none;
+}
+
+.hotspot-label {
+  position: absolute;
+  top: -2.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+}
+.hotspot:hover .hotspot-label { opacity: 1; }
+
+.room-nav {
+  position: absolute;
+  bottom: 1.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.room-nav-btn {
+  padding: 0.5rem 1.3rem;
+  border: 1px solid rgba(232,165,152,0.25);
+  background: rgba(22,10,6,0.75);
+  backdrop-filter: blur(12px);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  border-radius: 40px;
+  transition: border-color var(--transition), color var(--transition),
+              background var(--transition), box-shadow var(--transition);
+}
+.room-nav-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--accent);
+  background: rgba(232,165,152,0.08);
+  box-shadow: 0 0 14px rgba(232,165,152,0.1);
+}
+
+.hud {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 20;
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(10,4,2,0.6) 0%, transparent 100%);
+}
+.hud-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-style: italic;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+.hud-mode {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  opacity: 0.75;
+}
+
+#toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  z-index: 100;
+  background: var(--overlay-warm);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 0.6rem 1.6rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+}
+#toast.show { opacity: 1; }
+
+#wipe {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, #2e120c 0%, #0a0403 100%);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#wipe.active { opacity: 1; pointer-events: auto; }
+
+#poem-book-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 900;
+  background: rgba(6, 3, 8, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  align-items: center;
+  justify-content: center;
+}
+#poem-book-overlay.open {
+  display: flex;
+  animation: fadeUp 0.5s ease both;
+}
+.poem-book {
+  position: relative;
+  width: min(660px, 94vw);
+  max-height: 88vh;
+  background: #0f0b10;
+  border: 1px solid rgba(232,165,152,0.18);
+  border-radius: 18px;
+  box-shadow:
+    0 20px 80px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(232,165,152,0.1),
+    0 0 0 1px rgba(232,165,152,0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.poem-book-header {
+  padding: 1.4rem 2rem 1rem;
+  border-bottom: 1px solid rgba(232,165,152,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.poem-book-title {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-style: italic;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  opacity: 0.7;
+}
+.poem-counter {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+.poem-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+}
+.poem-close-btn:hover { opacity: 1; }
+.poem-pages-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 340px;
+}
+.poem-page {
+  position: absolute; inset: 0;
+  padding: 2.5rem 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232,165,152,0.15) transparent;
+}
+.poem-page.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.poem-page.exit-left {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+.poem-page-number {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-style: italic;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  opacity: 0.4;
+  margin-bottom: 1.2rem;
+}
+.poem-page-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+  line-height: 1.3;
+}
+.poem-page-divider {
+  width: 32px;
+  height: 1px;
+  background: rgba(232,165,152,0.35);
+  margin: 1rem 0 1.8rem;
+}
+.poem-page-body {
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.8vw, 1.08rem);
+  line-height: 2.15;
+  color: var(--text);
+  opacity: 0.9;
+  white-space: pre-wrap;
+  user-select: text;
+}
+.poem-page-note {
+  margin-top: 2rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-style: italic;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  opacity: 0.45;
+}
+.poem-book-footer {
+  padding: 1.1rem 2rem;
+  border-top: 1px solid rgba(232,165,152,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+.poem-nav-btn {
+  background: transparent;
+  border: 1px solid rgba(232,165,152,0.22);
+  border-radius: 40px;
+  padding: 0.5rem 1.4rem;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+.poem-nav-btn:hover {
+  border-color: rgba(232,165,152,0.55);
+  color: var(--accent);
+  background: rgba(232,165,152,0.06);
+}
+.poem-nav-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
+  pointer-events: none;
+}
+.poem-dots {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.poem-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(232,165,152,0.22);
+  transition: background 0.3s, transform 0.3s;
+  cursor: pointer;
+}
+.poem-dot.active {
+  background: var(--accent);
+  transform: scale(1.4);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes sceneFadeIn {
+  from { opacity: 0; transform: scale(1.012); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; } 50% { opacity: 0; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.45; } 50% { opacity: 1; }
+}
+@keyframes hotspotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow), 0 0 8px rgba(232,165,152,0.1); }
+  50%       { box-shadow: 0 0 0 10px transparent,     0 0 18px rgba(232,165,152,0.2); }
+}
+@keyframes candleFlicker {
+  0%, 100% { transform: scaleX(1)   scaleY(1)   rotate(-1deg); filter: drop-shadow(0 0 18px rgba(255,160,60,0.7)); }
+  25%       { transform: scaleX(0.97) scaleY(1.03) rotate(1deg);  filter: drop-shadow(0 0 24px rgba(255,180,60,0.9)); }
+  75%       { transform: scaleX(1.02) scaleY(0.98) rotate(-2deg); filter: drop-shadow(0 0 14px rgba(255,140,40,0.6)); }
+}
+
+html { height: -webkit-fill-available; }
+body { min-height: -webkit-fill-available; }
+
+@media (max-width: 600px) {
+  #loading-screen { gap: 1.2rem; padding: 2rem 1.5rem; }
+  #loading-screen::before { font-size: 2.2rem; }
+  .loading-title  { font-size: clamp(1.8rem, 9vw, 2.8rem); }
+  .loading-subtitle { font-size: 0.72rem; letter-spacing: 0.15em; }
+  .loading-hearts { font-size: 0.9rem; letter-spacing: 0.5em; }
+  .loading-bar-wrap { width: 70vw; }
+  .loading-start-btn { padding: 0.75rem 2.2rem; font-size: 0.92rem; }
+
+  .hud { padding: 0.75rem 1rem; }
+  .hud-title { font-size: 0.7rem; }
+  .hud-mode  { font-size: 0.6rem; }
+
+  .dialogue-box {
+    width: 96vw;
+    margin-bottom: 5.5rem;
+    padding: 1.1rem 1.1rem 1rem;
+    gap: 0.75rem;
+    border-radius: 14px;
+    max-height: 55vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dialogue-text { font-size: 0.95rem; line-height: 1.7; min-height: 2em; }
+  .speaker-name { font-size: 0.62rem; }
+
+  .choice-btn {
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 40px;
+    transform: none !important;
+  }
+  .choice-btn:active { background: var(--choice-hover); border-color: var(--border-hover); }
+  .choices-container { gap: 0.45rem; }
+
+  .hotspot-pulse { width: 44px; height: 44px; font-size: 1.15rem; }
+  .hotspot-label {
+    opacity: 1;
+    font-size: 0.6rem;
+    top: -1.8rem;
+    background: rgba(10,4,2,0.6);
+    padding: 0.1rem 0.4rem;
+    border-radius: 20px;
+    backdrop-filter: blur(4px);
+  }
+
+  .room-nav {
+    bottom: env(safe-area-inset-bottom, 0.8rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.8rem);
+    gap: 0.4rem;
+    padding: 0 0.5rem;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .room-nav-btn { font-size: 0.62rem; padding: 0.45rem 0.85rem; letter-spacing: 0.03em; }
+
+  #music-btn {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.9rem);
+    right: 0.9rem;
+    width: 42px; height: 42px;
+    font-size: 1rem;
+  }
+
+  #toast {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+    font-size: 0.7rem;
+    padding: 0.5rem 1.2rem;
+    max-width: 80vw;
+    text-align: center;
+  }
+
+  .room-dialogue-box {
+    width: 96vw !important;
+    bottom: 5rem !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .poem-page { padding: 1.6rem 1.4rem 1.2rem; }
+  .poem-book-header { padding: 1rem 1.2rem 0.8rem; }
+  .poem-book-footer { padding: 0.8rem 1.2rem; }
+  .poem-nav-btn { padding: 0.45rem 1rem; font-size: 0.68rem; }
+}
+
+@media (max-width: 380px) {
+  .loading-title { font-size: 1.6rem; }
+  .dialogue-box  { padding: 0.9rem; max-height: 50vh; }
+  .dialogue-text { font-size: 0.88rem; }
+  .choice-btn    { font-size: 0.82rem; padding: 0.75rem 0.9rem; }
+  .room-nav-btn  { font-size: 0.58rem; padding: 0.4rem 0.7rem; }
+}
+
+.is-touch .hotspot-label {
+  opacity: 1;
+  background: rgba(10,4,2,0.65);
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  font-size: 0.62rem;
+}
+
+#music-btn {
+  position: fixed;
+  bottom: 1.6rem;
+  right: 1.6rem;
+  z-index: 200;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(232,165,152,0.35);
+  background: rgba(22,10,6,0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--accent);
+  font-size: 1.15rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--transition), box-shadow var(--transition), transform 0.2s;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+}
+#music-btn:hover {
+  border-color: rgba(232,165,152,0.7);
+  box-shadow: 0 0 18px rgba(232,165,152,0.25);
+  transform: scale(1.1);
+}
+#music-btn.playing {
+  border-color: rgba(232,165,152,0.6);
+  animation: musicPulse 2.5s ease-in-out infinite;
+}
+@keyframes musicPulse {
+  0%, 100% { box-shadow: 0 2px 16px rgba(0,0,0,0.4), 0 0 0 0 rgba(232,165,152,0.2); }
+  50%       { box-shadow: 0 2px 16px rgba(0,0,0,0.4), 0 0 0 8px transparent; }
+}
 </style>
+<script src="https://w.soundcloud.com/player/api.js"></script>
 </head>
 <body>
 
-<!-- NAME ENTRY MODAL -->
-<div id="nameModal">
-  <div id="nameBox">
-    <h2>Welcome!</h2>
-    <p>Please enter your name to view this special page:</p>
-    <input type="text" id="userName" placeholder="Your Name">
-    <br>
-    <button onclick="enterPage()">Enter</button>
-    <p id="errorMsg" style="color:red; margin-top:0.5rem;"></p>
+<div class="hearts-bg" id="hearts-bg"></div>
+
+<div id="loading-screen">
+  <div class="loading-title">The Memories You Can Always Visit</div>
+  <div class="loading-subtitle">A Little World I Made, Just For You</div>
+  <div class="loading-hearts">♡ ♡ ♡</div>
+  <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+  <button class="loading-start-btn" id="start-btn" onclick="startExperience()">Enter and Join ♡</button>
+</div>
+
+<div class="hud" id="hud" style="display:none;">
+  <span class="hud-title">Your Little World</span>
+  <span class="hud-mode" id="hud-mode">Exploring</span>
+</div>
+
+<div id="wipe"></div>
+<div id="toast"></div>
+
+<iframe id="sc-iframe"
+  style="display:none; width:1px; height:1px; position:absolute;"
+  allow="autoplay; encrypted-media"
+  scrolling="no" frameborder="no">
+</iframe>
+
+<audio id="bg-music" loop preload="none" style="display:none;"></audio>
+<button id="music-btn" onclick="toggleMusic()" title="Toggle music">♪</button>
+
+<div id="poem-book-overlay">
+  <div class="poem-book">
+    <div class="poem-book-header">
+      <div class="poem-book-title">🖋 Open Notebook</div>
+      <div class="poem-counter" id="poem-counter">1 / 10</div>
+      <button class="poem-close-btn" onclick="closePoemBook()" title="Close">✕</button>
+    </div>
+    <div class="poem-pages-wrap" id="poem-pages-wrap"></div>
+    <div class="poem-book-footer">
+      <button class="poem-nav-btn" id="poem-prev" onclick="poemNav(-1)">← prev</button>
+      <div class="poem-dots" id="poem-dots"></div>
+      <button class="poem-nav-btn" id="poem-next" onclick="poemNav(1)">next →</button>
+    </div>
   </div>
 </div>
 
-<!-- NAVIGATION -->
-<nav>
-  <h2 id="welcomeText">💖 My Love for you</h2>
-  <button onclick="toggleTheme()">🌙 Theme</button>
-</nav>
-
-<!-- FAVORITE PICS -->
-<section class="gallery">
-  <h2>My Favorite Moments</h2>
-  <div class="gallery-grid" id="gallery"></div>
-</section>
-
-<!-- SLIDESHOW -->
-<section class="slideshow">
-  <img id="slideImg" src="" alt="slide">
-  <div id="slideText"></div>
-  <div class="slide-controls">
-    <button id="prevBtn">‹</button>
-    <button id="nextBtn">›</button>
-  </div>
-</section>
-
-<!-- VIDEO SECTION -->
-<section class="video-section">
-  <h2>My video for Our new Year❤️</h2>
-  <video id="myVideo" width="80%" max-width="700" controls>
-    <source src="her/for-her.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-  <p style="margin-top:0.5rem;">Our Future Awaits😁</p>
-  <div style="margin-top:1rem;">
-    <button onclick="document.getElementById('myVideo').play()">▶ Play</button>
-    <button onclick="document.getElementById('myVideo').pause()">⏸ Pause</button>
-  </div>
-</section>
-
-<!-- MUSIC SECTION -->
-<section class="music-controls">
-  <h2>Background Music 🎵</h2>
-  <audio id="bgMusic" loop>
-    <source src="her/hey.mp3" type="audio/mp3">
-    Your browser does not support audio.
-  </audio>
-  <div>
-    <button onclick="document.getElementById('bgMusic').play()">▶ Play Music</button>
-    <button onclick="document.getElementById('bgMusic').pause()">⏸ Pause Music</button>
-    <label>Volume:</label>
-    <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
-  </div>
-</section>
-
-<!-- LETTER -->
-<section class="letter-text">
-  <h2>My Letter 💌</h2>
-  <p>
-Dear Love,
-
-You are my calm in chaos,  
-my favorite place,  
-my forever.  
-
-Every moment with you is a treasure,  
-and my heart beats for our memories together.  
-Alaa im sorry for everything i have caused 
-you over this course of the year
-im really sorry for the past days 
-im really sorry i didnt gift you anything this year
-im sorry for disappearing alot 
-im sorry for causing you trouble
-im sorry for being like this
-im sorry for everything alaa
-i pray next year is better for you sorry for everything
-i love you and will always love you
-HAPPY NEW YEAR TO YOU AND TO YOUR FAMILY
-❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️
-
-With all my love,  
-– Yours always
-  </p>
-</section>
-
-<footer>
-  <p>Made by chat gpt and nour </p>
-</footer>
-
 <script>
-  // SET THE CORRECT NAME HERE
-  const correctName = "goldfish"; // Replace with the name you want
-
-  // NAME ENTRY FUNCTION
-  function enterPage() {
-    const nameInput = document.getElementById('userName').value.trim();
-    const errorMsg = document.getElementById('errorMsg');
-    if(nameInput.toLowerCase() === correctName.toLowerCase()){
-      document.getElementById('nameModal').style.display='none';
-      document.getElementById('welcomeText').innerText = `💖 Welcome, ${nameInput}!`;
-      const music = document.getElementById('bgMusic');
-      music.volume = 0.5;
-      music.play();
-    } else {
-      errorMsg.innerText = "Sorry, this page is only for the special person. Try again!";
-    }
-  }
-
-  // FAVORITE PICS
-  const favorites = [
-    { img:"her/pic-1.jpg", text:"A beautiful day together" },
-    { img:"her/slide-2.jpg", text:"My favorite moment" },
-    { img:"her/pic-2.jpg", text:"Forever memories" },
-    { img:"her/slide-13.png", text:"Endless love" }
-  ];
-  const galleryDiv = document.getElementById("gallery");
-  favorites.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="gallery-item";
-    const img=document.createElement("img"); img.src=item.img; img.alt=item.text;
-    const p=document.createElement("p"); p.innerText=item.text;
-    div.appendChild(img); div.appendChild(p); galleryDiv.appendChild(div);
-  });
-
-  // SLIDESHOW
-  const slides = [
-    { img:"her/slide-3.jpg", text:"my favorite picture😭" },
-    { img:"her/slide-3.png", text:"u look amazing in this" },
-    { img:"her/slide-2.jpg", text:"Forever starts with you" },
-    { img:"her/slide-4.png", text:"Proof u look so beautiful in any state💕" },
-    { img:"her/slide-11.png", text:"Mother look alike😌" },
-    { img:"her/slide-9.png", text:"Endless love for you❤️" },
-    { img:"her/slide-5.png", text:"Breathtakingggggg" },
-    { img:"her/slide-19.png", text:"Stole my breath" },
-    { img:"her/slide-1.png", text:"Miss Alaa🤓" },
-    { img:"her/slide-29.png", text:"Allllllllll Picsssssss offff youuuuu" }
-  ];
-  let index=0;
-  const slideImg=document.getElementById("slideImg");
-  const slideText=document.getElementById("slideText");
-
-  function showSlide(){
-    slideImg.style.opacity=0;
-    setTimeout(()=>{
-      slideImg.src=slides[index].img;
-      slideText.innerText=slides[index].text;
-      slideImg.onload = function(){
-        if(slideImg.naturalWidth > slideImg.naturalHeight){
-          slideImg.style.width = "70%";
-          slideImg.style.height = "auto";
-        } else {
-          slideImg.style.width = "auto";
-          slideImg.style.height = "400px";
-        }
-      }
-      slideImg.style.opacity=1;
-    },200);
-  }
-
-  function nextSlide(){ index=(index+1)%slides.length; showSlide(); }
-  function prevSlide(){ index=(index-1+slides.length)%slides.length; showSlide(); }
-
-  document.getElementById("nextBtn").addEventListener("click",()=>{ nextSlide(); resetInterval(); });
-  document.getElementById("prevBtn").addEventListener("click",()=>{ prevSlide(); resetInterval(); });
-
-  let slideInterval=setInterval(nextSlide,5000);
-  function resetInterval(){ clearInterval(slideInterval); slideInterval=setInterval(nextSlide,5000); }
-
-  showSlide();
-
-  // THEME
-  function toggleTheme(){ document.body.classList.toggle("dark"); }
-
-  // MUSIC VOLUME CONTROL
-  const volumeControl = document.getElementById('volumeControl');
-  const bgMusic = document.getElementById('bgMusic');
-  volumeControl.addEventListener('input', ()=>{ bgMusic.volume = volumeControl.value; });
+const MUSIC_URL = 'https://soundcloud.com/lilxay112/no-other-heart-by-marc-demarco-slowed-reverb-tiktok-version';
+const USE_LOCAL = true;
+const LOCAL_SRC = 'n.mp3';
+const MUSIC_VOL = 40;
+const LOCAL_VOL = 0.4;
 </script>
 
+<div id="engine">
+
+  <!-- ── ROOM 1: School Stairs ── -->
+  <div class="scene-layer" data-scene-id="room-living" data-scene-type="room">
+    <div class="scene-bg gradient-1"></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:35%; top:40%;"
+           onclick="clickHotspot(`Zawiyat Farah. Our cafe. There's something about that place that always felt like a pause — like the rest of the world agreed to wait outside while we were in there. I think of it every time I smell coffee now. That's your fault entirely. ☕`, '')">
+        <div class="hotspot-label">Zawiyat Farah</div>
+        <div class="hotspot-pulse">☕</div>
+      </div>
+
+      <div class="hotspot" style="left:75%; top:42%;"
+           onclick="clickHotspot(`The window. You'd glance out here between classes. I always wondered what you were thinking about. Probably something brilliant. You tend to do that — think brilliant things quietly.`, '')">
+        <div class="hotspot-label">The Window</div>
+        <div class="hotspot-pulse">🌤</div>
+      </div>
+
+      <div class="hotspot" style="left:85%; top:65%;"
+           onclick="clickHotspot(`Class 11 Science. Let's go in. I remember everything about that room.`, 'room-kitchen')">
+        <div class="hotspot-label">Class 11 Sci →</div>
+        <div class="hotspot-pulse">🚪</div>
+      </div>
+
+      <div class="hotspot" style="left:12%; top:72%;"
+           onclick="clickHotspot(`There's a door here you almost missed. It's warm on the other side. 🐱`, 'loves-cats')">
+        <div class="hotspot-label">🐱 Cats</div>
+        <div class="hotspot-pulse">🐱</div>
+      </div>
+
+      <div class="hotspot" style="left:30%; top:20%;"
+           onclick="clickHotspot(`A quieter room. Something tender is kept here. 🐱`, 'loves-oldcat')">
+        <div class="hotspot-label">🐱 Old Cat</div>
+        <div class="hotspot-pulse">🐱</div>
+      </div>
+
+      <div class="hotspot" style="left:55%; top:18%;"
+           onclick="clickHotspot(`Books lined up against the light. You'd love it in there. 📖`, 'loves-reading')">
+        <div class="hotspot-label">📖 Reading</div>
+        <div class="hotspot-pulse">📖</div>
+      </div>
+
+      <div class="hotspot" style="left:38%; top:75%;"
+           onclick="clickHotspot(`Words written on the walls in here. In ink. Yours, maybe. 🖋`, 'loves-poems')">
+        <div class="hotspot-label">🖋 Poems</div>
+        <div class="hotspot-pulse">🖋</div>
+      </div>
+
+      <div class="hotspot" style="left:70%; top:22%;"
+           onclick="clickHotspot(`You can see a garden through this window. Green and still. 🌿`, 'loves-grandpa')">
+        <div class="hotspot-label">🌿 Grandpa</div>
+        <div class="hotspot-pulse">🌿</div>
+      </div>
+
+      <div class="hotspot" style="left:62%; top:78%;"
+           onclick="clickHotspot(`A room full of words worth keeping. Come listen. 🎧`, 'loves-listen')">
+        <div class="hotspot-label">🎧 Listen</div>
+        <div class="hotspot-pulse">🎧</div>
+      </div>
+
+      <div class="hotspot" style="left:48%; top:58%;"
+           onclick="openPasscode()">
+        <div class="hotspot-label">🤍 Apology</div>
+        <div class="hotspot-pulse">🤍</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-kitchen')">Class 11 →</button>
+      <button class="room-nav-btn" onclick="goToScene('story-intro')">💌 My Letter</button>
+    </div>
+  </div>
+
+
+  <!-- ── ROOM 2: Class 11 Science ── -->
+  <div class="scene-layer" data-scene-id="room-kitchen" data-scene-type="room">
+    <div class="scene-bg" style="
+      background-image:
+        radial-gradient(ellipse at center, transparent 40%, rgba(8,3,1,0.50) 100%),
+        url('images/afternoon-lights.jpg');
+      background-size: contain;
+      background-position: center center;
+      background-color: #0e0808;
+    "></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:35%; top:55%;"
+           onclick="swapBgAndClick('room-kitchen', 'images/her (3)', `The window seat. That's where you'd always end up — half-watching outside, half-pretending to listen. I never blamed you. The view from here was honestly better than whatever was on the board. Especially when you were in it. 🪟`)">
+        <div class="hotspot-label">Window Seat</div>
+        <div class="hotspot-pulse">🪟</div>
+      </div>
+
+      <div class="hotspot" style="left:78%; top:45%;"
+           onclick="clickHotspot(`You'd tap my shoulder — just gently, like you weren't sure if you should. I'd wake up mid-drool probably, and there you'd be, always looking for me. That little tap. I'd fall asleep on purpose sometimes just to feel it again /i really would/. ☀️`, '')">
+        <div class="hotspot-label">sleepy 😴☀️</div>
+        <div class="hotspot-pulse">😴</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← Stairs</button>
+      <button class="room-nav-btn" onclick="goToScene('story-intro')">💌 My Letter</button>
+    </div>
+  </div>
+
+
+  <!-- ── LOVES: Cats ── -->
+  <div class="scene-layer" data-scene-id="loves-cats" data-scene-type="room">
+    <div class="scene-bg" id="cats-scene-bg" style="
+      background-image: url('images/cats.jpg');
+      background-size: contain;
+      background-position: center center;
+      background-color: #0c0809;
+      transition: opacity 0.5s ease;
+    "></div>
+    <div style="
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(8,3,1,0.55) 100%);
+    "></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:25%; top:62%;"
+           onclick="clickCatHotspot(
+             `The warm patch. Every cat finds it eventually. Just like they find you. There's something about you that feels like sunlight — safe, unhurried, worth curling into. 🐾`,
+             'images/pic (11).png'
+           )">
+        <div class="hotspot-label">The Warm Patch</div>
+        <div class="hotspot-pulse">☀️</div>
+      </div>
+
+      <div class="hotspot" style="left:50%; top:55%;"
+           onclick="clickCatHotspot(
+             `The way you are around cats — soft, careful, patient. You get quieter. Gentler. It's like they unlock something in you that the rest of the world doesn't always get to see. I notice it every time. 🐱`,
+             'images/pic (8).png'
+           )">
+        <div class="hotspot-label">Your Gentleness</div>
+        <div class="hotspot-pulse">🐱</div>
+      </div>
+
+      <div class="hotspot" style="left:75%; top:38%;"
+           onclick="clickCatHotspot(
+             `Cats choose who they trust. They don't perform affection — they mean it, or they don't give it at all. The fact that cats always seem to find their way to you says something real. You are someone worth choosing. 🌙`,
+             'images/pic.png'
+           )">
+        <div class="hotspot-label">Why They Choose You</div>
+        <div class="hotspot-pulse">🐾</div>
+      </div>
+
+      <div class="hotspot" style="left:40%; top:30%;"
+           onclick="clickCatHotspot(
+             `Honest confession: if I were a cat, I'd pick you too. I'd follow you from room to room and sit just close enough to feel your warmth. Actually… I already kind of do that. Don't tell anyone. 😄`,
+             'images/pic (1).jpg'
+           )">
+        <div class="hotspot-label">A Confession</div>
+        <div class="hotspot-pulse">💛</div>
+      </div>
+
+      <div class="hotspot" style="left:15%; top:40%;"
+           onclick="clickCatHotspot(
+             `They always come back. No matter how long you've been gone, they find you again — like you never left. Some things just know where they belong. I think about that a lot. 🐾`,
+             'images/cat (1).jpg'
+           )">
+        <div class="hotspot-label">Always There</div>
+        <div class="hotspot-pulse">🐾</div>
+      </div>
+
+      <div class="hotspot" style="left:62%; top:68%;"
+           onclick="clickCatHotspot(
+             `MISTTTTTYYYYYYYYYYYYYYYYYYYYYYY. 🐱`,
+             'images/pic (13).png'
+           )">
+        <div class="hotspot-label">Just Like You</div>
+        <div class="hotspot-pulse">🐱</div>
+      </div>
+
+      <div class="hotspot" style="left:85%; top:65%;"
+           onclick="clickCatHotspot(
+             `mistttyyyy silly is you sillllllyyyy. 💛`,
+             'images/pic (2).jpg'
+           )">
+        <div class="hotspot-label">The Look</div>
+        <div class="hotspot-pulse">✨</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← The Hub</button>
+      <button class="room-nav-btn" onclick="goToScene('loves-oldcat')">🐱 Your Old Cat →</button>
+    </div>
+  </div>
+
+
+  <!-- ── LOVES: Old Cat ── -->
+  <div class="scene-layer" data-scene-id="loves-oldcat" data-scene-type="room">
+    <div class="scene-bg" style="
+      background-image: url('images/old-cat.jpg');
+      background-size: contain;
+      background-position: center center;
+      background-color: #090a10;
+    "></div>
+    <div style="
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(6,8,15,0.60) 100%);
+    "></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:65%; top:35%;"
+           onclick="swapBgAndClick('loves-oldcat', 'images/moon.jpg', `Some loves don't end just because time does. Wherever they are now, I hope it's somewhere warm and quiet and full of light. And I hope they know — they were so loved. Still are. 🐾`)">
+        <div class="hotspot-label">The Moon</div>
+        <div class="hotspot-pulse">🌕</div>
+      </div>
+
+      <div class="hotspot" style="left:50%; top:42%;"
+           onclick="swapBgAndClick('loves-oldcat', 'images/cat(2).jpg', `The love you gave them — the way you cared, the way you grieved — that isn't small. It lives in the kindness you carry. Every time you're gentle with something fragile, that love is still moving through you. It didn't end. It changed shape. 🌿`)">
+        <div class="hotspot-label">Their Memory</div>
+        <div class="hotspot-pulse">🖼</div>
+      </div>
+
+      <div class="hotspot" style="left:20%; top:72%;"
+           onclick="clickHotspot(`To you, your cats Lily and Sky — they were a chapter of your life that you can never forget, but to them you were their whole lives, sticking by them through everything, just like you do to me. So u did save them alaa you where there when they needed you most even if u think you werent just know they where thinking of you alaa... just like me `, '')">
+        <div class="hotspot-label">Something I wrote</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← The Hub</button>
+      <button class="room-nav-btn" onclick="goToScene('loves-cats')">🐱 Cat Room →</button>
+    </div>
+  </div>
+
+
+  <!-- ── LOVES: Reading ── -->
+  <div class="scene-layer" data-scene-id="loves-reading" data-scene-type="room">
+    <div class="scene-bg" style="background: radial-gradient(ellipse at 35% 45%, #1a1208 0%, #0c0908 70%);"></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:55%; top:35%;"
+           onclick="clickHotspot(`I always want to know what you're reading. Not just the title — what parts slow you down. What lines you re-read twice. What you close the book thinking about. Those things tell me everything I want to always know. Will you tell me sometime? 🌿`, '')">
+        <div class="hotspot-label">The Bookshelf</div>
+        <div class="hotspot-pulse">📚</div>
+      </div>
+
+      <div class="hotspot" style="left:78%; top:60%;"
+           onclick="swapBgAndClick('loves-reading', 'images/her (2).jpg', `Still warm. Because when you read, time does something different. Stretches out, softens. I think that's one of the things you love about books — they slow the world down to something bearable. Maybe even beautiful. ☕`)">
+        <div class="hotspot-label">The Nescafe</div>
+        <div class="hotspot-pulse">☕</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← The Hub</button>
+      <button class="room-nav-btn" onclick="goToScene('loves-poems')">🖋 Poem Study →</button>
+    </div>
+  </div>
+
+
+  <!-- ── LOVES: Poems ── -->
+  <div class="scene-layer" data-scene-id="loves-poems" data-scene-type="room">
+    <div class="scene-bg" style="background: radial-gradient(ellipse at 55% 35%, #0f1518 0%, #080c0e 70%);"></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:30%; top:50%;"
+           onclick="openPoemBook()">
+        <div class="hotspot-label">Open Notebook 📖</div>
+        <div class="hotspot-pulse">🖋</div>
+      </div>
+
+      <div class="hotspot" style="left:60%; top:38%;"
+           onclick="clickHotspot(`you are a candle that never melts, a light that never turns off, a light that shines in my worst days. i love you 🕯`, '')">
+        <div class="hotspot-label">The Candle</div>
+        <div class="hotspot-pulse">🕯</div>
+      </div>
+
+      <div class="hotspot" style="left:78%; top:52%;"
+           onclick="clickHotspot(`Here is what I would write, if I could write: You are the kind of person poems try to describe. Not because you are perfect — but because you are real in the way that matters. The way light is real. The way silence after music is real. I am always paying attention. 💛`, '')">
+        <div class="hotspot-label">A Poem For You</div>
+        <div class="hotspot-pulse">💛</div>
+      </div>
+
+      <div class="hotspot" style="left:45%; top:68%;"
+           onclick="clickHotspot(`After every storm, there is a rainbow. 🖋`, '')">
+        <div class="hotspot-label">Your Favourite Line</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← The Hub</button>
+      <button class="room-nav-btn" onclick="goToScene('loves-grandpa')">🌿 Grandpa's Garden →</button>
+    </div>
+  </div>
+
+
+  <!-- ── LOVES: Grandpa's Garden ── -->
+  <div class="scene-layer" data-scene-id="loves-grandpa" data-scene-type="room">
+    <div class="scene-bg" style="background: radial-gradient(ellipse at 45% 55%, #101a0f 0%, #080c07 70%);"></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:55%; top:35%;"
+           onclick="clickHotspot(`The people who shaped us are always present, even when they're not. The way you carry him with you — in the things you value, in the way you love — I see it. He must have been someone extraordinary to have helped make you. 💛`, '')">
+        <div class="hotspot-label">Something He Grew</div>
+        <div class="hotspot-pulse">🌱</div>
+      </div>
+
+      <div class="hotspot" style="left:78%; top:48%;"
+           onclick="clickHotspot(`The love we carry for the people we've lost doesn't shrink. It finds new places to live. In the way you laugh. In what you find beautiful. In you, just being you. He is not gone from that. He is in you, still growing. 🌿`, '')">
+        <div class="hotspot-label">His Memory</div>
+        <div class="hotspot-pulse">🖼</div>
+      </div>
+
+      <div class="hotspot" style="left:42%; top:68%;"
+           onclick="clickHotspot(`The love you have for people can never fade, and so does your love for your grandpa. I wish I met you earlier so I could meet the guy that inspired you, my love...`, '')">
+        <div class="hotspot-label">A wish</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← The Hub</button>
+      <button class="room-nav-btn" onclick="goToScene('story-intro')">💌 My Letter →</button>
+    </div>
+  </div>
+
+
+  <!-- ── LISTEN ROOM ── -->
+  <div class="scene-layer" data-scene-id="loves-listen" data-scene-type="room">
+    <div class="scene-bg" style="
+      background: radial-gradient(ellipse at 40% 50%, #12101a 0%, #0a080f 70%);
+    "></div>
+
+    <div class="room-hotspots">
+
+      <div class="hotspot" style="left:15%; top:25%;"
+           onclick="clickHotspot(`You are like a mother cat that always sacrificed for others like they were your own children.`, '')">
+        <div class="hotspot-label">Quote I</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:38%; top:18%;"
+           onclick="clickHotspot(`Alaa, you are always enough. Never let anyone tell you you're not enough. The way you care, the way you worry, the way you try — you are truly one of a kind.`, '')">
+        <div class="hotspot-label">Quote II</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:62%; top:22%;"
+           onclick="clickHotspot(`A person with a soft heart never loses. For nothing is so strong as gentleness, nothing so gentle as real strength.`, '')">
+        <div class="hotspot-label">Quote III</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:82%; top:32%;"
+           onclick="clickHotspot(`You are not weak, Alaa. You are strong, patient, strong-willed, amazing with kids — just an amazing and beautiful creation of Allah (swt). And if you think you're weak, remember that we are all broken — that's how the light gets in.`, '')">
+        <div class="hotspot-label">Quote IV</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:22%; top:52%;"
+           onclick="clickHotspot(`You are alive, Alaa. Live in the present and don't ever worry about the future as it's already written. Push your hardest in the present and give it your all. I believe in you.`, '')">
+        <div class="hotspot-label">Quote V</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:48%; top:48%;"
+           onclick="clickHotspot(`I see your eyes and I see a world of beautiful gardens... gardens of hope, strong will, kindness, gentleness, trees of love, rivers of sweetness, rains of wonder.`, '')">
+        <div class="hotspot-label">Quote VI</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:74%; top:55%;"
+           onclick="clickHotspot(`Don't ever lose hope in anything, Alaa. For losing hope is like losing your will to live. Always remember that hope is being able to see that there is light despite all of the darkness.`, '')">
+        <div class="hotspot-label">Quote VII</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:15%; top:74%;"
+           onclick="clickHotspot(`The love you give out never goes to waste. Because you gave out good — whether your love was with people who appreciated it or not, just know that the love is you. If people didn't appreciate your love, that says nothing about you.`, '')">
+        <div class="hotspot-label">Quote VIII</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:42%; top:78%;"
+           onclick="clickHotspot(`Your forgiveness is like a mother's forgiveness of her child. No matter what the situation, you always find forgiveness as an answer. I'm sorry, Alaa.`, '')">
+        <div class="hotspot-label">Quote IX</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:72%; top:76%;"
+           onclick="clickHotspot(`You are my everything. Please don't leave me.`, '')">
+        <div class="hotspot-label">Quote X</div>
+        <div class="hotspot-pulse">✦</div>
+      </div>
+
+      <div class="hotspot" style="left:8%; top:45%;"
+           onclick="openTikTok('https://www.tiktok.com/@missherfortune/video/7598815710244064525?is_from_webapp=1&sender_device=pc&web_id=7554366388639761928', 'tt-1-pulse')">
+        <div class="hotspot-label">Song I 🎵</div>
+        <div class="hotspot-pulse" id="tt-1-pulse">🎵</div>
+      </div>
+
+      <div class="hotspot" style="left:88%; top:45%;"
+           onclick="openTikTok('https://www.tiktok.com/REPLACE_ME_II', 'tt-2-pulse')">
+        <div class="hotspot-label">Song II 🎵</div>
+        <div class="hotspot-pulse" id="tt-2-pulse">🎵</div>
+      </div>
+
+      <div class="hotspot" style="left:28%; top:38%;"
+           onclick="openTikTok('https://www.tiktok.com/REPLACE_ME_III', 'tt-3-pulse')">
+        <div class="hotspot-label">Song III 🎵</div>
+        <div class="hotspot-pulse" id="tt-3-pulse">🎵</div>
+      </div>
+
+      <div class="hotspot" style="left:68%; top:38%;"
+           onclick="openTikTok('https://www.tiktok.com/REPLACE_ME_IV', 'tt-4-pulse')">
+        <div class="hotspot-label">Song IV 🎵</div>
+        <div class="hotspot-pulse" id="tt-4-pulse">🎵</div>
+      </div>
+
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← The Hub</button>
+    </div>
+  </div>
+
+  <!-- ── APOLOGY ROOM ── -->
+  <div class="scene-layer" data-scene-id="apology-room" data-scene-type="room">
+    <div class="scene-bg" style="
+      background:
+        radial-gradient(ellipse at 30% 40%, #1a0e18 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 65%, #0e1018 0%, transparent 50%),
+        #090608;
+    "></div>
+
+    <div style="
+      position: absolute; inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    ">
+      <div style="
+        width: min(680px, 94vw);
+        max-height: 82vh;
+        overflow-y: auto;
+        background: rgba(20, 10, 14, 0.88);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(232, 165, 152, 0.18);
+        border-radius: 16px;
+        padding: clamp(1.8rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+        box-shadow:
+          0 12px 60px rgba(0,0,0,0.6),
+          inset 0 1px 0 rgba(232,165,152,0.08);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(232,165,152,0.2) transparent;
+      ">
+
+        <div style="
+          font-family: var(--font-display);
+          font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+          font-style: italic;
+          color: var(--accent);
+          margin-bottom: 0.4rem;
+          opacity: 0.9;
+        ">To you,</div>
+
+        <div style="
+          width: 40px;
+          height: 1px;
+          background: rgba(232,165,152,0.3);
+          margin-bottom: 2rem;
+        "></div>
+
+        <div style="
+          font-family: var(--font-body);
+          font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+          line-height: 2;
+          color: var(--text);
+          opacity: 0.92;
+          display: flex;
+          flex-direction: column;
+          gap: 1.4rem;
+        ">
+
+          <p>I don't know how to start this except honestly — which is probably how I should have started a lot of things with you, much earlier than now.</p>
+          <p>I'm sorry. Not the kind of sorry alaa the past days i was a bad person through evrything i have done and i  realized i needed to fix myself if i needed to be next to you and the new you alaa  </p>
+          <p>I'm sorry for the times I made you feel like you were too much, when the truth is I just didn't know how to hold something as real as you. I'm sorry for the moments I pulled away when you needed me to stay. For the silences that weren't peaceful — they were just me being a coward.</p>
+          <p>I'm sorry alaa for going away without you knowing i was almost recovering form stuff but i just got overwhelmed and pulled away im sorry i couldnt face you without a valentines gift or even a date i got a bit sad that we didnt get to go on a date but ig i just stopped bringing the idea to my mind</p>
+          <p>im sorry alaa idk what i  saw maybe u didnt want a date or maybe it was my fault i got lost a bit on that and i acted wrong im sorry the new college over whelmed me im sorry alaa i never realized or appreciated you im sorry for everything i didnt teel you no to me loosing you or try to stop you i knew i  was at wrong and every decesion u took you had full right</p>
+          <p>I'm not asking you to forget any of it. I'm not even asking you to feel better right now. I just needed you to know that I know. That it mattered. That <em>you</em> matter — not in a general, easy way, but in the specific, irreplaceable way that only you do.</p>
+          <p>I would undo what hurt you if I could. I can't. So instead I'm here, saying this, meaning every word of it.</p>
+          <p>I'm sorry. And I'll keep being better — not to earn something back, but because you deserve someone who tries. im sorry</p>
+
+        </div>
+
+        <div style="
+          margin-top: 2.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid rgba(232,165,152,0.12);
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+          color: var(--accent);
+          opacity: 0.8;
+        ">Always yours, always sorry, always trying. 🤍</div>
+
+      </div>
+    </div>
+
+    <div class="room-nav">
+      <button class="room-nav-btn" onclick="goToScene('room-living')">← The Hub</button>
+    </div>
+  </div>
+
+  <!-- ── STORY SCENES ── -->
+
+  <div class="scene-layer" data-scene-id="story-intro" data-scene-type="story"
+       data-speaker="A Note From Me"
+       data-dialogue="I made this because I wanted to give you something that couldn't be bought. A place that's just ours. Walk around, click things, read my words. There's a story I want to tell you — it's ours, actually. Ready?">
+    <div class="scene-bg gradient-3"></div>
+    <div class="dialogue-box">
+      <div class="speaker-name" data-bind="speaker"></div>
+      <div class="dialogue-text" data-bind="dialogue"></div>
+      <div class="choices-container">
+        <button class="choice-btn" onclick="goToScene('story-ch1')">I'm ready. Tell me. 💛</button>
+        <button class="choice-btn" onclick="goToScene('room-living')">Let me explore a little more first…</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-layer" data-scene-id="story-ch1" data-scene-type="story"
+       data-speaker="Me"
+       data-dialogue="The story starts the way most good things do — quietly. With you just existing somewhere nearby, and me noticing. I remember the exact way the light fell the first time I really saw you. Not just looked at you. *Saw* you. your beautiful gazing hair">
+    <div class="scene-bg gradient-1"></div>
+    <div class="dialogue-box">
+      <div class="speaker-name" data-bind="speaker"></div>
+      <div class="dialogue-text" data-bind="dialogue"></div>
+      <div class="choices-container">
+        <button class="choice-btn" onclick="goToScene('story-ch2')">Go on… ✨</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-layer" data-scene-id="story-ch2" data-scene-type="story"
+       data-speaker="Me"
+       data-dialogue="There's a question I've been meaning to ask you. What's your favorite memory of us? Not the grand ones — the small, ordinary ones. What do *you* remember most?">
+    <div class="scene-bg gradient-2"></div>
+    <div class="dialogue-box">
+      <div class="speaker-name" data-bind="speaker"></div>
+      <div class="dialogue-text" data-bind="dialogue"></div>
+      <div class="choices-container">
+        <button class="choice-btn" onclick="goToScene('story-branch-a')">The suncity day where we spent the whole day together and night too…</button>
+        <button class="choice-btn" onclick="goToScene('story-branch-b')">the time where we both volnteered for chhristmas </button>
+        <button class="choice-btn" onclick="goToScene('story-branch-c')">Or u tell me</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-layer" data-scene-id="story-branch-a" data-scene-type="story"
+       data-speaker="Me"
+       data-dialogue="That day i can never forget where we played,talked, i opened up about my father my past my problems...">
+    <div class="scene-bg gradient-3"></div>
+    <div class="dialogue-box">
+      <div class="speaker-name" data-bind="speaker"></div>
+      <div class="dialogue-text" data-bind="dialogue"></div>
+      <div class="choices-container">
+        <button class="choice-btn" onclick="goToScene('story-ending')">And now? 💛</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-layer" data-scene-id="story-branch-b" data-scene-type="story"
+       data-speaker="Me"
+       data-dialogue="the day i showed up regarding working more than 16 hours the day before just to experience it with you Alaa u where really pretty">
+    <div class="scene-bg gradient-2"></div>
+    <div class="dialogue-box">
+      <div class="speaker-name" data-bind="speaker"></div>
+      <div class="dialogue-text" data-bind="dialogue"></div>
+      <div class="choices-container">
+        <button class="choice-btn" onclick="goToScene('story-ending')">And now? 💛</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-layer" data-scene-id="story-branch-c" data-scene-type="story"
+       data-speaker="Me"
+       data-dialogue="no matter wwhat it is what moments it is i always love it ">
+    <div class="scene-bg gradient-1"></div>
+    <div class="dialogue-box">
+      <div class="speaker-name" data-bind="speaker"></div>
+      <div class="dialogue-text" data-bind="dialogue"></div>
+      <div class="choices-container">
+        <button class="choice-btn" onclick="goToScene('story-ending')">And now? 💛</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene-layer" data-scene-id="story-ending" data-scene-type="story"
+       data-speaker="Always, Me"
+       data-dialogue="And now — now I'm just grateful. That you exist. That you're mine to love. That I get to make silly little websites about you and call it a gift. Thank you for being here. Thank you for being you. I love you. That's the whole story. It's enough. the passcode is ilost">
+    <div class="scene-bg gradient-3"></div>
+    <div class="dialogue-box">
+      <div class="speaker-name" data-bind="speaker"></div>
+      <div class="dialogue-text" data-bind="dialogue"></div>
+      <div class="choices-container">
+        <button class="choice-btn" onclick="goToScene('room-living')">🏠 Go back and explore</button>
+        <button class="choice-btn" onclick="restartExperience()">↺ Start over from the beginning</button>
+      </div>
+    </div>
+  </div>
+
+<!-- ── PASSCODE OVERLAY ── -->
+<div id="passcode-overlay" style="
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 800;
+  background: rgba(9, 4, 6, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1.6rem;
+">
+  <div style="
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-style: italic;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-align: center;
+    opacity: 0.9;
+  ">This room is locked.</div>
+
+  <div style="
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-align: center;
+  ">enter the code to open it</div>
+
+  <div style="display:flex; gap: 0.7rem; align-items:center; justify-content:center;">
+    <input id="pc-input" type="text" maxlength="10" autocomplete="off"
+      placeholder="_ _ _ _ _"
+      style="
+        background: rgba(232,165,152,0.06);
+        border: 1px solid rgba(232,165,152,0.3);
+        border-radius: 40px;
+        padding: 0.75rem 1.6rem;
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        font-style: italic;
+        letter-spacing: 0.3em;
+        text-align: center;
+        outline: none;
+        width: min(220px, 70vw);
+        transition: border-color 0.3s, box-shadow 0.3s;
+      "
+      oninput="checkPasscode()"
+      onkeydown="if(event.key==='Escape') closePasscode()"
+    >
+  </div>
+
+  <div id="pc-error" style="
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-style: italic;
+    color: #e07070;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-align: center;
+  ">that's not it. try again. 🤍</div>
+
+  <button onclick="closePasscode()" style="
+    margin-top: 0.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  ">← go back</button>
+</div>
+
+</div><!-- /#engine -->
+
+
+<script>
+const POEMS = [
+  {
+    title: "Poem One",
+    body: "take a moment and smile\nlet your spirit run wild\nin this world of trails\nfind joy in each mile\nit doesn't matter if the glass\nis half empty or half full\nthere is still water in the cup\ndrink that and stop complaining, lift yourself up\nremember life is a gym membership\nwith a really complicated cancellation slip\nbut don't let it deter your stride\nkeep pushing forward don't let it slide\nin the sweat of effort we find our grace\nembrace the challenge in every place\nstrength is built in every trail\nso keep going even when its vile\ntake a moment and smile\nas you navigate life's trail\nthough the journey may seem tough\nin each moment breathe it in\nlet the journey be where you begin\nfor in the ups and downs we find our worth\nkeep moving forward across this earth",
+    note: "i always loved your poems"
+  },
+  {
+    title: "Poem Two",
+    body: "i'm so in love with you it's all that i know\na love that runs deeper than i could ever show\nyou are the first thought in my mind every day\nthe one i turn to in every single way\nyou make me feel safe like nothing could harm\nwith you by my side i'm wrapped in your calm\nit's in every word in every glance\nthe way you make my heart dance\nyou are my reason for laughter the joy in my soul\nthe one who makes me feel completely whole\nyour tenderness fills up the spaces inside\nand with every word you make me feel alive\nyou are the light that brightens my days\nthe one who knows me in the most beautiful ways\ni am so in love with your caring heart\nwith every little thing that sets you apart\non your birthday love i want you to see\nthat you are my everything my heart's decree\ni love you more than words could show\nmore than you'll ever know more than i can ever show\nhappy birthday love I LOVE YOU.",
+    note: "reading them made me cry"
+  },
+  {
+    title: "Poem Three",
+    body: "treat yourself like someone you loved\nyou could not believe that you had been letting\nyourself keep forgetting\nthat you were who you have been looking for\nand deep in your heart you know it was time to stop\nlooking for more\nuntil you could look through all your fears\nand look into a mirror and see clearly\nthat the one looking back at you\nwas the only one who can make you happy\nand you are already enough\nand when you start to see that you will start to be that\nyour world will get brighter, your load will get lighter\nand you see that with life you can be a lover not a fighter\nand you deserve it\nbecause you are worth it\nand there is no point in letting yourself keep forgetting because\nno matter what you say or do\nyou are perfect.",
+    note: "making this made me cry"
+  },
+  {
+    title: "Poem Four",
+    body: "you are who you have been looking for\nso stop looking for more unless you are looking in the mirror\nbecause it is time for you to see clearly that\nyou are who you have been looking for\n\nand that empty feeling you got\nthat hole in your chest\nyou only got that feeling because you think\nyou are not blessed\nwith everything you need\nbut can't you see\nwhat difference you have made\nby being in someone's life\nyou have changed the world with every smile\nso when i tell you\nyou are the light in someone's life\nbelieve that\nbecause you are enough\nand you are who you have been looking for",
+    note: "these always made me feel i could be better than ever"
+  },
+];
+
+let currentPoem = 0;
+
+function _buildPoemPages() {
+  const wrap = document.getElementById('poem-pages-wrap');
+  const dotsEl = document.getElementById('poem-dots');
+  wrap.innerHTML = '';
+  dotsEl.innerHTML = '';
+
+  POEMS.forEach((poem, i) => {
+    const page = document.createElement('div');
+    page.className = 'poem-page' + (i === 0 ? ' active' : '');
+    page.id = 'poem-page-' + i;
+    page.innerHTML =
+      '<div class="poem-page-number">' + String(i + 1).padStart(2, '0') + ' / ' + String(POEMS.length).padStart(2, '0') + '</div>' +
+      '<div class="poem-page-title">' + poem.title + '</div>' +
+      '<div class="poem-page-divider"></div>' +
+      '<div class="poem-page-body">' + poem.body + '</div>' +
+      (poem.note ? '<div class="poem-page-note">' + poem.note + '</div>' : '');
+    wrap.appendChild(page);
+
+    const dot = document.createElement('div');
+    dot.className = 'poem-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToPoem(i);
+    dotsEl.appendChild(dot);
+  });
+}
+
+function openPoemBook() {
+  _buildPoemPages();
+  currentPoem = 0;
+  _updatePoemUI();
+  document.getElementById('poem-book-overlay').classList.add('open');
+}
+
+function closePoemBook() {
+  document.getElementById('poem-book-overlay').classList.remove('open');
+}
+
+function poemNav(dir) {
+  const next = currentPoem + dir;
+  if (next < 0 || next >= POEMS.length) return;
+  goToPoem(next);
+}
+
+function goToPoem(index) {
+  const pages = document.querySelectorAll('.poem-page');
+  const dots  = document.querySelectorAll('.poem-dot');
+
+  pages[currentPoem].classList.remove('active');
+  pages[currentPoem].classList.add('exit-left');
+  setTimeout(() => { pages[currentPoem].classList.remove('exit-left'); }, 450);
+
+  currentPoem = index;
+  setTimeout(() => {
+    pages[currentPoem].classList.add('active');
+    pages[currentPoem].scrollTop = 0;
+  }, 60);
+
+  dots.forEach((d, i) => d.classList.toggle('active', i === currentPoem));
+  _updatePoemUI();
+}
+
+function _updatePoemUI() {
+  document.getElementById('poem-counter').textContent = (currentPoem + 1) + ' / ' + POEMS.length;
+  document.getElementById('poem-prev').disabled = currentPoem === 0;
+  document.getElementById('poem-next').disabled = currentPoem === POEMS.length - 1;
+}
+
+let currentSceneId = null;
+let typewriterTimer = null;
+const TYPEWRITER_SPEED = 28;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const bar = document.getElementById('loading-bar');
+  const btn = document.getElementById('start-btn');
+  setTimeout(() => { bar.style.width = '100%'; }, 100);
+  setTimeout(() => { btn.classList.add('visible'); }, 1900);
+});
+
+function startExperience() {
+  const ls = document.getElementById('loading-screen');
+  ls.classList.add('hidden');
+  document.getElementById('hud').style.display = 'flex';
+  document.getElementById('engine').classList.add('active');
+  _startMusic();
+  goToScene('room-living');
+}
+
+let scWidget = null;
+let musicOn  = false;
+
+function _startMusic() {
+  const btn = document.getElementById('music-btn');
+  btn.style.display = 'flex';
+
+  if (USE_LOCAL) {
+    const audio = document.getElementById('bg-music');
+    audio.src = LOCAL_SRC;
+    audio.loop = true;
+    audio.volume = 0;
+    audio.play().then(() => {
+      musicOn = true;
+      btn.classList.add('playing');
+      _fadeAudio(audio, 0, LOCAL_VOL, 2500);
+    }).catch(() => {});
+  } else {
+    const iframe = document.getElementById('sc-iframe');
+    const encoded = encodeURIComponent(MUSIC_URL);
+    iframe.src = `https://w.soundcloud.com/player/?url=${encoded}&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_artwork=false&color=%23e8a598&buying=false&sharing=false&download=false&single_active=true`;
+    const waitForSC = setInterval(() => {
+      if (typeof SC === 'undefined') return;
+      clearInterval(waitForSC);
+      scWidget = SC.Widget(iframe);
+      scWidget.bind(SC.Widget.Events.READY, () => {
+        scWidget.setVolume(MUSIC_VOL);
+        scWidget.play();
+      });
+      scWidget.bind(SC.Widget.Events.PLAY,   () => { musicOn = true;  btn.classList.add('playing');    btn.textContent = '♪'; });
+      scWidget.bind(SC.Widget.Events.PAUSE,  () => { musicOn = false; btn.classList.remove('playing'); btn.textContent = '♩'; });
+      scWidget.bind(SC.Widget.Events.FINISH, () => { scWidget.seekTo(0); scWidget.play(); });
+    }, 200);
+    setTimeout(() => clearInterval(waitForSC), 10000);
+  }
+}
+
+function toggleMusic() {
+  const btn = document.getElementById('music-btn');
+  if (USE_LOCAL) {
+    const audio = document.getElementById('bg-music');
+    if (!audio.src) return;
+    if (audio.paused) {
+      audio.play().then(() => {
+        musicOn = true; btn.classList.add('playing'); btn.textContent = '♪';
+        _fadeAudio(audio, 0, LOCAL_VOL, 800);
+        showToast('♪ music on');
+      });
+    } else {
+      _fadeAudio(audio, audio.volume, 0, 600, () => {
+        audio.pause(); musicOn = false; btn.classList.remove('playing'); btn.textContent = '♩';
+        showToast('♩ music off');
+      });
+    }
+    return;
+  }
+  if (!scWidget) return;
+  scWidget.isPaused(paused => {
+    if (paused) { scWidget.play(); showToast('♪ music on'); }
+    else        { scWidget.pause(); showToast('♩ music off'); }
+  });
+}
+
+function _fadeAudio(audio, from, to, ms, done) {
+  const steps = 30, iv = ms / steps, delta = (to - from) / steps;
+  let v = from;
+  audio.volume = from;
+  const t = setInterval(() => {
+    v += delta;
+    audio.volume = Math.min(1, Math.max(0, v));
+    if ((delta > 0 && v >= to) || (delta < 0 && v <= to)) {
+      audio.volume = to; clearInterval(t); if (done) done();
+    }
+  }, iv);
+}
+
+function restartExperience() { goToScene('room-living'); }
+
+function goToScene(sceneId) {
+  if (!sceneId) return;
+  const wipe = document.getElementById('wipe');
+  wipe.classList.add('active');
+  setTimeout(() => { _activateScene(sceneId); wipe.classList.remove('active'); }, 350);
+}
+
+function _activateScene(sceneId) {
+  document.querySelectorAll('.scene-layer').forEach(s => s.classList.remove('active'));
+  const target = document.querySelector(`[data-scene-id="${sceneId}"]`);
+  if (!target) { console.warn(`Scene "${sceneId}" not found.`); return; }
+  target.classList.add('active');
+  currentSceneId = sceneId;
+  const type = target.getAttribute('data-scene-type');
+  const hudMode = document.getElementById('hud-mode');
+  if (type === 'room') hudMode.textContent = 'Exploring';
+  if (type === 'story') hudMode.textContent = sceneId.startsWith('loves-') ? '💛 Things You Love' : 'Story';
+  if (type === 'story') _populateStoryScene(target);
+}
+
+function _populateStoryScene(sceneEl) {
+  const speaker  = sceneEl.getAttribute('data-speaker')  || '';
+  const dialogue = sceneEl.getAttribute('data-dialogue') || '';
+  const speakerEl = sceneEl.querySelector('[data-bind="speaker"]');
+  if (speakerEl) speakerEl.textContent = speaker;
+  const dialogueEl = sceneEl.querySelector('[data-bind="dialogue"]');
+  if (dialogueEl) _typewrite(dialogueEl, dialogue);
+}
+
+function _typewrite(el, text) {
+  if (typewriterTimer) clearInterval(typewriterTimer);
+  el.textContent = '';
+  el.classList.add('typing');
+  let i = 0;
+  typewriterTimer = setInterval(() => {
+    if (i < text.length) { el.textContent += text[i]; i++; }
+    else { el.classList.remove('typing'); clearInterval(typewriterTimer); }
+  }, TYPEWRITER_SPEED);
+  el.onclick = () => {
+    clearInterval(typewriterTimer); el.textContent = text;
+    el.classList.remove('typing'); el.onclick = null;
+  };
+}
+
+function clickHotspot(dialogueText, nextSceneId) {
+  const currentScene = document.querySelector(`[data-scene-id="${currentSceneId}"]`);
+  if (!currentScene) return;
+  let roomDialogue = currentScene.querySelector('.room-dialogue-box');
+  if (!roomDialogue) {
+    roomDialogue = document.createElement('div');
+    roomDialogue.className = 'dialogue-box room-dialogue-box';
+    roomDialogue.style.cssText = 'position:absolute;bottom:7rem;z-index:10;';
+    const speakerEl = document.createElement('div');
+    speakerEl.className = 'speaker-name';
+    speakerEl.textContent = 'You notice…';
+    const textEl = document.createElement('div');
+    textEl.className = 'dialogue-text';
+    const closeRow = document.createElement('div');
+    closeRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
+    const dismissBtn = document.createElement('button');
+    dismissBtn.className = 'continue-btn';
+    dismissBtn.textContent = '[ dismiss ]';
+    dismissBtn.onclick = () => roomDialogue.remove();
+    closeRow.appendChild(dismissBtn);
+    roomDialogue.appendChild(speakerEl);
+    roomDialogue.appendChild(textEl);
+    roomDialogue.appendChild(closeRow);
+    currentScene.appendChild(roomDialogue);
+  }
+  const textEl = roomDialogue.querySelector('.dialogue-text');
+  _typewrite(textEl, dialogueText);
+  if (nextSceneId) {
+    let goBtn = roomDialogue.querySelector('.go-next-btn');
+    if (!goBtn) {
+      goBtn = document.createElement('button');
+      goBtn.className = 'choice-btn go-next-btn';
+      goBtn.style.marginTop = '0.5rem';
+      roomDialogue.appendChild(goBtn);
+    }
+    goBtn.textContent = '→ Continue';
+    goBtn.onclick = () => goToScene(nextSceneId);
+  }
+}
+
+function showToast(message, duration = 2500) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  document.documentElement.classList.add('is-touch');
+}
+
+(function spawnHearts() {
+  const container = document.getElementById('hearts-bg');
+  if (!container) return;
+  const symbols = ['♡', '♡', '♡', '✦', '♡', '·'];
+  function spawn() {
+    const el = document.createElement('span');
+    el.className = 'heart-particle';
+    el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (0.8 + Math.random() * 1.2) + 'rem';
+    el.style.color = Math.random() > 0.5 ? '#e8a598' : '#e07070';
+    const dur = 12 + Math.random() * 16;
+    el.style.animationDuration = dur + 's';
+    el.style.animationDelay = (Math.random() * 4) + 's';
+    container.appendChild(el);
+    setTimeout(() => el.remove(), (dur + 5) * 1000);
+  }
+  for (let i = 0; i < 20; i++) setTimeout(spawn, i * 400);
+  setInterval(spawn, 1400);
+})();
+
+const PASSCODE = 'ilost';
+
+function openPasscode() {
+  const overlay = document.getElementById('passcode-overlay');
+  const input   = document.getElementById('pc-input');
+  const error   = document.getElementById('pc-error');
+  overlay.style.display = 'flex';
+  input.value = '';
+  error.style.opacity = '0';
+  input.style.borderColor = 'rgba(232,165,152,0.3)';
+  setTimeout(() => input.focus(), 100);
+}
+
+function closePasscode() {
+  document.getElementById('passcode-overlay').style.display = 'none';
+}
+
+function checkPasscode() {
+  const input = document.getElementById('pc-input');
+  const error = document.getElementById('pc-error');
+  const val   = input.value.trim().toLowerCase();
+
+  if (val === PASSCODE) {
+    input.style.borderColor = 'rgba(100, 200, 130, 0.7)';
+    input.style.boxShadow   = '0 0 18px rgba(100,200,130,0.2)';
+    setTimeout(() => {
+      closePasscode();
+      goToScene('apology-room');
+    }, 500);
+  } else if (val.length >= PASSCODE.length) {
+    input.style.borderColor = 'rgba(224,112,112,0.6)';
+    input.style.boxShadow   = '0 0 12px rgba(224,112,112,0.15)';
+    error.style.opacity = '1';
+    setTimeout(() => {
+      input.value = '';
+      input.style.borderColor = 'rgba(232,165,152,0.3)';
+      input.style.boxShadow   = '';
+      error.style.opacity = '0';
+    }, 1200);
+  }
+}
+
+// ── TikTok link opener ─────────────────────────────────────
+function openTikTok(url, pulseId) {
+  const pulse = document.getElementById(pulseId);
+  if (pulse) {
+    pulse.style.animation = 'musicPulse 1.2s ease-in-out infinite';
+    pulse.style.borderColor = 'var(--accent)';
+    setTimeout(() => {
+      pulse.style.animation = '';
+      pulse.style.borderColor = '';
+    }, 3000);
+  }
+  window.open(url, '_blank');
+  showToast('♪ opening on TikTok…');
+}
+
+function swapBgAndClick(sceneId, imagePath, dialogueText) {
+  const scene = document.querySelector(`[data-scene-id="${sceneId}"]`);
+  const bg = scene ? scene.querySelector('.scene-bg') : null;
+  if (bg) {
+    bg.style.opacity = '0';
+    setTimeout(() => {
+      bg.style.backgroundImage = `url('${imagePath}')`;
+      bg.style.backgroundSize = 'contain';
+      bg.style.backgroundPosition = 'center center';
+      bg.style.transition = 'opacity 0.5s ease';
+      bg.style.opacity = '1';
+    }, 300);
+  }
+  clickHotspot(dialogueText, '');
+}
+
+function clickCatHotspot(dialogueText, imagePath) {
+  const bg = document.getElementById('cats-scene-bg');
+  if (bg) {
+    bg.style.opacity = '0';
+    setTimeout(() => {
+      bg.style.backgroundImage = `url('${imagePath}')`;
+      bg.style.backgroundSize = 'contain';
+      bg.style.backgroundPosition = 'center center';
+      bg.style.opacity = '1';
+    }, 300);
+  }
+  clickHotspot(dialogueText, '');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const poemOverlay = document.getElementById('poem-book-overlay');
+    if (poemOverlay.classList.contains('open')) {
+      closePoemBook(); return;
+    }
+    const rd = document.querySelector('.room-dialogue-box');
+    if (rd) rd.remove();
+  }
+  if (document.getElementById('poem-book-overlay').classList.contains('open')) {
+    if (e.key === 'ArrowRight') poemNav(1);
+    if (e.key === 'ArrowLeft')  poemNav(-1);
+  }
+  if (e.key === ' ' || e.key === 'Enter') {
+    const dialogueEl = document.querySelector('.scene-layer.active [data-bind="dialogue"]');
+    if (dialogueEl && dialogueEl.onclick) dialogueEl.onclick();
+  }
+});
+</script>
 </body>
 </html>
+
 
 
 
